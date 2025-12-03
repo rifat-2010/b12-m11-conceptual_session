@@ -33,6 +33,7 @@ const verifyJWT = async (req, res, next) => {
   console.log(token)
   if (!token) return res.status(401).send({ message: 'Unauthorized Access!' })
   try {
+
     const decoded = await admin.auth().verifyIdToken(token)
     req.tokenEmail = decoded.email
     console.log(decoded)
@@ -53,6 +54,32 @@ const client = new MongoClient(process.env.MONGODB_URI, {
 })
 async function run() {
   try {
+
+    const db = client.db('plantsDB');
+    const plantsCollection = db.collection('plants')
+
+
+
+    // Save a plant data in db
+    app.post('/plants', async (req, res) => {
+      const plantData = req.body
+      console.log(plantData)
+      const result = await plantsCollection.insertOne(plantData)
+      res.send(result)
+    })
+
+
+
+    // get all plants from db
+    app.get('/plants', async (req, res) => {
+      const result = await plantsCollection.find().toArray();
+      res.send(result)
+    })
+
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 })
     console.log(

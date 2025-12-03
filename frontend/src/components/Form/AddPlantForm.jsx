@@ -1,10 +1,46 @@
 import { useForm } from "react-hook-form"
 import useAuth from "../../hooks/useAuth"
 import { imageUpload } from '../../utils'
+import axios from "axios"
+import { useMutation } from "@tanstack/react-query"
+import toast from "react-hot-toast"
+import ErrorPage from "../../pages/ErrorPage"
+import LoadingSpinner from "../Shared/LoadingSpinner"
 
 const AddPlantForm = () => {
 
 const {user} = useAuth()
+
+ // useMutation hook useCase (POST || PUT || PATCH || DELETE)
+  const {
+    isPending,
+    isError,
+    mutateAsync,
+    reset: mutationReset,
+  } = useMutation({
+    mutationFn: async payload =>
+      await axios.post(`${import.meta.env.VITE_API_URL}/plants`, payload),
+    onSuccess: data => {
+      console.log(data)
+      // show toast
+      toast.success('Plant Added successfully')
+      // navigate to my inventory page
+      mutationReset()
+      // Query key invalidate
+    },
+    onError: error => {
+      console.log(error)
+    },
+    onMutate: payload => {
+      console.log('I will post this data--->', payload)
+    },
+    onSettled: (data, error) => {
+      console.log('I am from onSettled--->', data)
+      if (error) console.log(error)
+    },
+    retry: 3,
+  })
+
 
 
    // React Hook Form
@@ -12,7 +48,7 @@ const {user} = useAuth()
     register,
     handleSubmit,
     formState: { errors },
-    // reset,
+    reset,
   } = useForm()
 
   const onSubmit = async data => {
@@ -20,7 +56,7 @@ const {user} = useAuth()
     const { name, description, quantity, price, category, image } = data
     const imageFile = image[0]
 
-    // try {
+    try {
       const imageUrl = await imageUpload(imageFile)
       const plantData = {
         image: imageUrl,
@@ -35,14 +71,17 @@ const {user} = useAuth()
           email: user?.email,
         },
       }
-      console.log(plantData)
-    //   // await axios.post(`${import.meta.env.VITE_API_URL}/plants`, plantData),
-    //   await mutateAsync(plantData)
-    //   reset()
-    // } catch (err) {
-    //   console.log(err)
+     
+   // await axios.post(`${import.meta.env.VITE_API_URL}/plants`, plantData),
+      await mutateAsync(plantData)
+      reset()
+    } catch (err) {
+      console.log(err)
     }
-  // }
+  }
+
+  if (isPending) return <LoadingSpinner />
+  if (isError) return <ErrorPage />
 
 
 
@@ -202,12 +241,12 @@ const {user} = useAuth()
               type='submit'
               className='w-full cursor-pointer p-3 mt-5 text-center font-medium text-white transition duration-200 rounded shadow-md bg-lime-500 '
             >
-              {/* {isPending ? (
+              {isPending ? (
                 <TbFidgetSpinner className='animate-spin m-auto' />
               ) : (
                 'Save & Continue'
-              )} */}
-              button of this page
+              )}
+         
             </button>
           </div>
         </div>
