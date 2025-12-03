@@ -4,6 +4,7 @@ import LoadingSpinner from '../../components/Shared/LoadingSpinner'
 import useAuth from '../../hooks/useAuth'
 import { FcGoogle } from 'react-icons/fc'
 import { TbFidgetSpinner } from 'react-icons/tb'
+import { useForm } from "react-hook-form"
 
 const Login = () => {
   const { signIn, signInWithGoogle, loading, user, setLoading } = useAuth()
@@ -12,16 +13,21 @@ const Login = () => {
 
   const from = location.state || '/'
 
-  if (loading) return <LoadingSpinner />
-  if (user) return <Navigate to={from} replace={true} />
+ 
 
-  // form submit handler
-  const handleSubmit = async event => {
-    event.preventDefault()
-    const form = event.target
-    const email = form.email.value
-    const password = form.password.value
-
+  // React Hook Form 
+    const {
+      register,
+      handleSubmit,
+      // watch,
+      formState: { errors },
+    } = useForm()
+    // const name1 = watch('name');
+    // console.log(name1)
+    console.log(errors)
+  
+const onSubmit = async data  => {
+  const { email, password } = data
     try {
       //User Login
       await signIn(email, password)
@@ -33,6 +39,26 @@ const Login = () => {
       toast.error(err?.message)
     }
   }
+
+
+  // // form submit handler
+  // const handleSubmit = async event => {
+  //   event.preventDefault()
+  //   const form = event.target
+  //   const email = form.email.value
+  //   const password = form.password.value
+
+  //   try {
+  //     //User Login
+  //     await signIn(email, password)
+
+  //     navigate(from, { replace: true })
+  //     toast.success('Login Successful')
+  //   } catch (err) {
+  //     console.log(err)
+  //     toast.error(err?.message)
+  //   }
+  // }
 
   // Handle Google Signin
   const handleGoogleSignIn = async () => {
@@ -47,7 +73,14 @@ const Login = () => {
       toast.error(err?.message)
     }
   }
-  return (
+  
+
+   if (loading) return <LoadingSpinner />
+  if (user) return <Navigate to={from} replace={true} />
+
+
+
+   return (
     <div className='flex justify-center items-center min-h-screen bg-white'>
       <div className='flex flex-col max-w-md p-6 rounded-md sm:p-10 bg-gray-100 text-gray-900'>
         <div className='mb-8 text-center'>
@@ -57,7 +90,7 @@ const Login = () => {
           </p>
         </div>
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           noValidate=''
           action=''
           className='space-y-6 ng-untouched ng-pristine ng-valid'
@@ -68,14 +101,26 @@ const Login = () => {
                 Email address
               </label>
               <input
-                type='email'
+                // type='email'
                 name='email'
                 id='email'
                 required
                 placeholder='Enter Your Email Here'
                 className='w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-lime-500 bg-gray-200 text-gray-900'
                 data-temp-mail-org='0'
+              {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: 'Please enter a valid email address.',
+                  },
+                })}
               />
+               {errors.email && (
+                <p className='text-red-500 text-xs mt-1'>
+                  {errors.email.message}
+                </p>
+               )}
             </div>
             <div>
               <div className='flex justify-between'>
@@ -91,7 +136,15 @@ const Login = () => {
                 required
                 placeholder='*******'
                 className='w-full px-3 py-2 border rounded-md border-gray-300 focus:outline-lime-500 bg-gray-200 text-gray-900'
+              {...register('password', {required: 'Password is required', minLength: {
+                  value: 6, message: 'Password must be at least 6 characters'
+                }})}
               />
+               {errors.password && (
+                <p className='text-red-500 text-xs mt-1'>
+                  {errors.password.message}
+                </p>
+              )}
             </div>
           </div>
 
