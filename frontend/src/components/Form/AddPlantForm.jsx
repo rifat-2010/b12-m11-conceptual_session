@@ -43,7 +43,7 @@ const {user} = useAuth()
 
 
 
-   // React Hook Form
+   // React Hook Form.
   const {
     register,
     handleSubmit,
