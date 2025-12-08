@@ -56,6 +56,8 @@ async function run() {
     const db = client.db('plantsDB');
     const plantsCollection = db.collection('plants')
     const ordersCollection = db.collection('orders')
+    const usersCollection = db.collection('users')
+
 
 
 
@@ -72,7 +74,7 @@ async function run() {
     // get all plants from db
     app.get('/plants', async (req, res) => {
       const result = await plantsCollection.find().toArray();
-      res.send(result)
+      res.send(result)  
     })
 
 
@@ -197,6 +199,87 @@ async function run() {
     })
 
 
+
+    // part 03 start
+
+     // save or update a user in db
+    app.post('/user', async (req, res) => {
+      const userData = req.body
+    //   userData.created_at = new Date().toISOString()
+    //   userData.last_loggedIn = new Date().toISOString()
+    //   userData.role = 'customer'
+
+    //   const query = {
+    //     email: userData.email,
+    //   }
+
+    //   const alreadyExists = await usersCollection.findOne(query)
+    //   console.log('User Already Exists---> ', !!alreadyExists)
+
+    //   if (alreadyExists) {
+    //     console.log('Updating user info......')
+    //     const result = await usersCollection.updateOne(query, {
+    //       $set: {
+    //         last_loggedIn: new Date().toISOString(),
+    //       },
+    //     })
+    //     return res.send(result)
+    //   }
+
+      console.log('Saving new user info......')
+      const result = await usersCollection.insertOne(userData)
+      res.send(result)
+    })
+
+
+
+
+
+    // // get a user's role
+    // app.get('/user/role', verifyJWT, async (req, res) => {
+    //   const result = await usersCollection.findOne({ email: req.tokenEmail })
+    //   res.send({ role: result?.role })
+    // })
+
+    // // save become-seller request
+    // app.post('/become-seller', verifyJWT, async (req, res) => {
+    //   const email = req.tokenEmail
+    //   const alreadyExists = await sellerRequestsCollection.findOne({ email })
+    //   if (alreadyExists)
+    //     return res
+    //       .status(409)
+    //       .send({ message: 'Already requested, wait koro.' })
+
+      // const result = await sellerRequestsCollection.insertOne({ email })
+      // res.send(result)
+    // })
+
+    // // get all seller requests for admin
+    // app.get('/seller-requests', verifyJWT, verifyADMIN, async (req, res) => {
+    //   const result = await sellerRequestsCollection.find().toArray()
+    //   res.send(result)
+    // })
+
+    // // get all users for admin
+    // app.get('/users', verifyJWT, verifyADMIN, async (req, res) => {
+    //   const adminEmail = req.tokenEmail
+    //   const result = await usersCollection
+    //     .find({ email: { $ne: adminEmail } })
+    //     .toArray()
+    //   res.send(result)
+    // })
+
+    // // update a user's role
+    // app.patch('/update-role', verifyJWT, verifyADMIN, async (req, res) => {
+    //   const { email, role } = req.body
+    //   const result = await usersCollection.updateOne(
+    //     { email },
+    //     { $set: { role } }
+    //   )
+    //   await sellerRequestsCollection.deleteOne({ email })
+
+    //   res.send(result)
+    // })
 
 
 
