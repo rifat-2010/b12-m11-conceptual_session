@@ -205,26 +205,26 @@ async function run() {
      // save or update a user in db
     app.post('/user', async (req, res) => {
       const userData = req.body
-    //   userData.created_at = new Date().toISOString()
-    //   userData.last_loggedIn = new Date().toISOString()
-    //   userData.role = 'customer'
+      userData.created_at = new Date().toISOString()
+      userData.last_loggedIn = new Date().toISOString()
+      userData.role = 'customer'
 
-    //   const query = {
-    //     email: userData.email,
-    //   }
+      const query = {
+        email: userData.email,
+      }
 
-    //   const alreadyExists = await usersCollection.findOne(query)
-    //   console.log('User Already Exists---> ', !!alreadyExists)
+      const alreadyExists = await usersCollection.findOne(query)
+      console.log('User Already Exists---> ', !!alreadyExists)
 
-    //   if (alreadyExists) {
-    //     console.log('Updating user info......')
-    //     const result = await usersCollection.updateOne(query, {
-    //       $set: {
-    //         last_loggedIn: new Date().toISOString(),
-    //       },
-    //     })
-    //     return res.send(result)
-    //   }
+      if (alreadyExists) {
+        console.log('Updating user info......')
+        const result = await usersCollection.updateOne(query, {
+          $set: {
+            last_loggedIn: new Date().toISOString(),
+          },
+        })
+        return res.send(result)
+      }
 
       console.log('Saving new user info......')
       const result = await usersCollection.insertOne(userData)
@@ -235,11 +235,18 @@ async function run() {
 
 
 
-    // // get a user's role
+    // get a user's role
     // app.get('/user/role', verifyJWT, async (req, res) => {
-    //   const result = await usersCollection.findOne({ email: req.tokenEmail })
-    //   res.send({ role: result?.role })
-    // })
+      //   const result = await usersCollection.findOne({ email: req.tokenEmail })
+      //   res.send({ role: result?.role })
+      // })
+app.get('/user/role/:email', async (req, res) => {
+  const email = req.params.email
+  const result = await usersCollection.findOne({ email })
+  res.send({ role: result?.role })
+})
+
+
 
     // // save become-seller request
     // app.post('/become-seller', verifyJWT, async (req, res) => {
